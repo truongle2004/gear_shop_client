@@ -2,4 +2,97 @@
   margin: 0px;
   padding: 0px;
   box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
+
+/*scroll bar style*/
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: var(--bs-white);
+}
+
+*::-webkit-scrollbar-thumb {
+  /* background-color: var(--bs-danger); */
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html .app-overlay .app-overlay-scope {
+  overflow: hidden;
+}
+
+body {
+  /* background-image: linear-gradient( */
+  /*   to right top, */
+  /*   #d16ba5, */
+  /*   #c777b9, */
+  /*   #ba83ca, */
+  /*   #aa8fd8, */
+  /*   #9a9ae1, */
+  /*   #8aa7ec, */
+  /*   #79b3f4, */
+  /*   #69bff8, */
+  /*   #52cffe, */
+  /*   #41dfff, */
+  /*   #46eefa, */
+  /*   #5ffbf1 */
+  /* ); */
+background: #F0F8FF;
+  height: 100vh;
+}
+
+.subHeader {
+    display: none;
+}
+
+.link-no-decoration {
+  text-decoration: none;
+  color: inherit;
+}
+
+section {
+    padding: 30px;
+    margin: 10px;
+    border-radius: 20px;
+    background: white;
+}
+
+.responsive-component {
+  width: 100%; 
+}
+
+@media (min-width: 768px) {
+  .responsive-component {
+    width: 75%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .responsive-component {
+    width: 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .subHeader {
+    display: block;
+  }
+}
+
+@media (max-width: 1300px) {
+    .custom-card {
+        width: 13rem !important;
+        height: auto;
+    }
+}
+
+

@@ -1,23 +1,34 @@
-import { createBrowserRouter } from 'react-router-dom'
-import Layout from '../common/components/Layout'
 import { lazy, Suspense } from 'react'
-import MainContent from '../modules/home/components/MainContent'
+import { createBrowserRouter } from 'react-router-dom'
+import Layout from '@/common/components/Layout'
+import Spinner from 'react-bootstrap/esm/Spinner'
 
-const LoginComponent = lazy(() => import('../modules/auth/components/LoginUI'))
+const LoginComponent = lazy(() => import('@/modules/auth/components/LoginUI'))
 const RegisterComponent = lazy(
-  () => import('../modules/auth/components/RegisterUI')
+  () => import('@/modules/auth/components/RegisterUI')
 )
-const HomeComponent = lazy(() => import('../modules/home/components/HomeUI'))
+const HomeComponent = lazy(() => import('@/modules/home/components/HomeUI'))
+const CategoryComponent = lazy(
+  () => import('@/modules/category/components/CategoryUI')
+)
 
 const router = createBrowserRouter([
   {
-    path: '/tech_shop',
+    path: '/tech_shop/pages',
     element: <Layout />,
     children: [
       {
         path: 'login',
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense
+            fallback={
+              <div className="text-center mt-3">
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              </div>
+            }
+          >
             <LoginComponent />
           </Suspense>
         )
@@ -25,7 +36,15 @@ const router = createBrowserRouter([
       {
         path: 'register',
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense
+            fallback={
+              <div className="text-center mt-3">
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              </div>
+            }
+          >
             <RegisterComponent />
           </Suspense>
         )
@@ -35,14 +54,30 @@ const router = createBrowserRouter([
         element: (
           <Suspense
             fallback={
-              <div className="text-center">
-                <div className="spinner-border" role="status">
+              <div className="text-center mt-3">
+                <Spinner animation="border" role="status">
                   <span className="visually-hidden">Loading...</span>
-                </div>
+                </Spinner>
               </div>
             }
           >
             <HomeComponent />
+          </Suspense>
+        )
+      },
+      {
+        path: ':slug',
+        element: (
+          <Suspense
+            fallback={
+              <div className="text-center mt-3">
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              </div>
+            }
+          >
+            <CategoryComponent />
           </Suspense>
         )
       }
@@ -59,7 +94,10 @@ const router = createBrowserRouter([
             <span className="text-danger">Opps!</span> Page not found.
           </p>
           <p className="lead">The page you’re looking for doesn’t exist.</p>
-          <a href="/tech_shop/home" className="btn btn-primary">
+          <a
+            onClick={() => router.navigate('/tech_shop/home')}
+            className="btn btn-primary"
+          >
             Go Home
           </a>
         </div>
