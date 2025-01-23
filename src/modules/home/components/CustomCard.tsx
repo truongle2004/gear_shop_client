@@ -60,10 +60,10 @@ const CustomCard: FC<Product> = (props) => {
                   marginRight: '0.3rem'
                 }}
               >
-                <Icon size={11} />
+                <Icon size={12} />
                 <span
                   style={{
-                    fontSize: '0.5rem',
+                    fontSize: '0.7rem',
                     marginRight: '0.3rem',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',

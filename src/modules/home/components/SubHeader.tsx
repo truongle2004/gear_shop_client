@@ -21,7 +21,7 @@ const SubHeader: FC = () => {
   }, [])
 
   return (
-    <nav className='subHeader'>
+    <nav className="subHeader">
       <ul
         style={{
           display: 'flex',
@@ -39,7 +39,7 @@ const SubHeader: FC = () => {
             }}
           >
             <Link
-              className="text-white fs-6"
+              className="fs-6"
               to={`/tech_shop/pages/${item.slug}`}
               style={{ textDecoration: 'none' }}
             >
