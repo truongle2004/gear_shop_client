@@ -1,5 +1,11 @@
+import ScrollToTopOnMount from './ScrollToTopOnMount'
+
 const DetailUI = () => {
-  return <div></div>
+  return (
+    <div>
+      <ScrollToTopOnMount />
+    </div>
+  )
 }
 
 export default DetailUI

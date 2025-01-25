@@ -6,6 +6,7 @@ import { ProductData } from '../models'
 import { getProductAPI } from '../services'
 import useCategoryStore from '../store/categoryStore'
 import CustomCard from './CustomCard'
+import ScrollToTopOnMount from './ScrollToTopOnMount'
 
 const DEFAUL_PAGE_NO = 1
 const DEFAUL_PAGE_SIZE = 50
@@ -36,6 +37,7 @@ const CategoryUI = () => {
   return (
     <>
       <Container>
+        <ScrollToTopOnMount />
         <main
           style={{
             display: 'flex',
