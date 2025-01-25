@@ -46,12 +46,12 @@ body {
   /*   #46eefa, */
   /*   #5ffbf1 */
   /* ); */
-background: #F0F8FF;
+  background: #f0f8ff;
   height: 100vh;
 }
 
 .subHeader {
-    display: none;
+  display: none;
 }
 
 .link-no-decoration {
@@ -60,14 +60,15 @@ background: #F0F8FF;
 }
 
 section {
-    padding: 30px;
-    margin: 10px;
-    border-radius: 20px;
-    background: white;
+  padding: 30px;
+  margin: 10px;
+  border-radius: 20px;
+  background-color: #ffdee9;
+  background-image: linear-gradient(0deg, #ffdee9 0%, #b5fffc 100%);
 }
 
 .responsive-component {
-  width: 100%; 
+  width: 100%;
 }
 
 @media (min-width: 768px) {
@@ -89,10 +90,8 @@ section {
 }
 
 @media (max-width: 1300px) {
-    .custom-card {
-        width: 13rem !important;
-        height: auto;
-    }
+  .custom-card {
+    width: 13rem !important;
+    height: auto;
+  }
 }
-
-

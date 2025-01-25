@@ -58,12 +58,13 @@ const schema = z
     path: ['confirmPassword']
   })
 
+// TODO handle error response
 const RegisterUI: FC = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const handleMovingLoginPage = () => {
-    navigate('/tech_shop/login')
+    navigate('/tech_shop/pages/login')
   }
 
   const {

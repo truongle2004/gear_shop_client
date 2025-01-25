@@ -28,12 +28,13 @@ const schema = z.object({
   })
 })
 
+// TODO: handle response
 const LoginUI: FC = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const handleMovingRegisterPage = () => {
-    navigate('/tech_shop/register')
+    navigate('/tech_shop/pages/register')
   }
 
   const { register, handleSubmit } = useForm<FormValues>({

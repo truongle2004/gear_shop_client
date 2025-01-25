@@ -1,24 +1,9 @@
-import { useMutation } from '@tanstack/react-query'
-import { FC, useEffect, useState } from 'react'
-import { Category } from '../models'
-import { getCategoriesAPI } from '../services'
+import { FC } from 'react'
 import { Link } from 'react-router-dom'
+import useCategoryStore from '../store/categoryStore'
 
 const SubHeader: FC = () => {
-  const [categories, setCategories] = useState<Category[]>([])
-
-  const { mutate: getCategoriesMutation } = useMutation({
-    mutationFn: getCategoriesAPI,
-    onSuccess: (data) => {
-      setCategories(data)
-    }
-  })
-
-  useEffect(() => {
-    if (categories?.length === 0) {
-      getCategoriesMutation()
-    }
-  }, [])
+  const categories = useCategoryStore((state) => state.listCategory)
 
   return (
     <nav className="subHeader">

@@ -2,11 +2,16 @@ import { useMutation } from '@tanstack/react-query'
 import { FC, useEffect, useState } from 'react'
 import { Container } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
+import image1 from '../../../../public/layout_web__1015x325.webp'
+import image2 from '../../../../public/layout_web__1015x325_ghe_ha_gia.webp'
 import { ProductData } from '../models'
-import { getKeyBoardAPI, getLaptopGamingAPI, getPCAPI } from '../services'
+import { getProductAPI } from '../services'
 import CustomCard from './CustomCard'
 import SubHeader from './SubHeader'
 import SwipeToSlide from './SwipeToSlice'
+
+const PAGE_NO = 1
+const PAGE_SIZE = 20
 
 const HomeUI: FC = () => {
   const [laptopGamingData, setLaptopGamingData] = useState<ProductData>()
@@ -15,41 +20,59 @@ const HomeUI: FC = () => {
 
   const [keyboardData, setKeyBoardData] = useState<ProductData>()
 
+  const [monitorData, setMonitorData] = useState<ProductData>()
+
   const { mutate: getKeyBoardMutation } = useMutation({
-    mutationFn: getKeyBoardAPI,
+    mutationFn: getProductAPI,
     onSuccess: (data) => {
       setKeyBoardData(data)
     }
   })
 
   const { mutate: getLaptopMutation } = useMutation({
-    mutationFn: getLaptopGamingAPI,
+    mutationFn: getProductAPI,
     onSuccess: (data) => {
       setLaptopGamingData(data)
     }
   })
 
-  const { mutate: getPcMutation } = useMutation({
-    mutationFn: getPCAPI,
+  const { mutate: getMouseMutation } = useMutation({
+    mutationFn: getProductAPI,
     onSuccess: (data) => {
       setMouseData(data)
     }
   })
 
+  const { mutate: getMonitorMutation } = useMutation({
+    mutationFn: getProductAPI,
+    onSuccess: (data) => {
+      setMonitorData(data)
+    }
+  })
+
   useEffect(() => {
     getLaptopMutation({
-      pageNo: 1,
-      pageSize: 10
+      pageNo: PAGE_NO,
+      pageSize: PAGE_SIZE,
+      slug: 'laptop-gaming'
     })
 
-    getPcMutation({
-      pageNo: 1,
-      pageSize: 10
+    getMouseMutation({
+      pageNo: PAGE_NO,
+      pageSize: PAGE_SIZE,
+      slug: 'chuot'
     })
 
     getKeyBoardMutation({
-      pageNo: 1,
-      pageSize: 10
+      pageNo: PAGE_NO,
+      pageSize: PAGE_SIZE,
+      slug: 'ban-phim'
+    })
+
+    getMonitorMutation({
+      pageNo: PAGE_NO,
+      pageSize: PAGE_SIZE,
+      slug: 'man-hinh'
     })
   }, [])
 
@@ -64,14 +87,16 @@ const HomeUI: FC = () => {
         }}
       >
         <h3 className="fw-bold">{title}</h3>
-        <Link to={`/category/${title.toLowerCase()}`}>Xem them</Link>
+        <Link to={`/tech_shop/pages/category/${data?.content[0].category}`}>
+          Xem them
+        </Link>
       </div>
 
       <SwipeToSlide>
         {data?.content.map((item) => (
           <Link
             key={item.id}
-            to={`/product/${item.handle}`}
+            to={`product/${item.handle}`}
             className="link-no-decoration"
           >
             <CustomCard {...item} />
@@ -85,9 +110,14 @@ const HomeUI: FC = () => {
     <>
       <SubHeader />
       <Container>
+        <div>
+          <img src={image1} alt="" />
+          <img src={image2} alt="" />
+        </div>
         {renderSection('Laptop Gaming', laptopGamingData)}
         {renderSection('Chuot', mouseData)}
         {renderSection('Ban Phim', keyboardData)}
+        {renderSection('Man Hinh', monitorData)}
       </Container>
     </>
   )

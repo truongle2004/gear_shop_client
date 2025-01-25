@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { FC, lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import Layout from '@/common/components/Layout'
 import Spinner from 'react-bootstrap/esm/Spinner'
@@ -7,9 +7,23 @@ const LoginComponent = lazy(() => import('@/modules/auth/components/LoginUI'))
 const RegisterComponent = lazy(
   () => import('@/modules/auth/components/RegisterUI')
 )
-const HomeComponent = lazy(() => import('@/modules/home/components/HomeUI'))
+const HomeComponent = lazy(() => import('@/modules/product/components/HomeUI'))
 const CategoryComponent = lazy(
-  () => import('@/modules/category/components/CategoryUI')
+  () => import('@/modules/product/components/CategoryUI')
+)
+
+const LazyLoad = (Component: FC) => (
+  <Suspense
+    fallback={
+      <div className="text-center mt-3">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    }
+  >
+    <Component />
+  </Suspense>
 )
 
 const router = createBrowserRouter([
@@ -19,67 +33,19 @@ const router = createBrowserRouter([
     children: [
       {
         path: 'login',
-        element: (
-          <Suspense
-            fallback={
-              <div className="text-center mt-3">
-                <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </Spinner>
-              </div>
-            }
-          >
-            <LoginComponent />
-          </Suspense>
-        )
+        element: LazyLoad(LoginComponent)
       },
       {
         path: 'register',
-        element: (
-          <Suspense
-            fallback={
-              <div className="text-center mt-3">
-                <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </Spinner>
-              </div>
-            }
-          >
-            <RegisterComponent />
-          </Suspense>
-        )
+        element: LazyLoad(RegisterComponent)
       },
       {
         path: 'home',
-        element: (
-          <Suspense
-            fallback={
-              <div className="text-center mt-3">
-                <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </Spinner>
-              </div>
-            }
-          >
-            <HomeComponent />
-          </Suspense>
-        )
+        element: LazyLoad(HomeComponent)
       },
       {
-        path: ':slug',
-        element: (
-          <Suspense
-            fallback={
-              <div className="text-center mt-3">
-                <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </Spinner>
-              </div>
-            }
-          >
-            <CategoryComponent />
-          </Suspense>
-        )
+        path: 'category/:category',
+        element: LazyLoad(CategoryComponent)
       }
     ]
   },
