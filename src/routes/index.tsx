@@ -15,6 +15,7 @@ const CategoryComponent = lazy(
 const DetailComponent = lazy(
   () => import('@/modules/product/components/DetailUI')
 )
+const CartCoponent = lazy(() => import('@/modules/cart/components/CartUI'))
 
 // eslint-disable-next-line react-refresh/only-export-components
 const LazyLoad = (Component: FC) => (
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: 'product/:handle/:id',
         element: LazyLoad(DetailComponent)
+      },
+      {
+        path: 'cart',
+        element: LazyLoad(CartCoponent)
       }
     ]
   },
