@@ -1,11 +1,10 @@
 import { env } from '@/enviroment'
-import type { Category, ProductData } from '@/modules/product/models'
+import type { Category, Product, ProductData } from '@/modules/product/models'
 import axiosInstance from '@/utils/axiosInstance'
 
 export const getCategoriesAPI = async (): Promise<Category[]> => {
   return await axiosInstance.get(`${env.PRODUCT_URL}/categories`)
 }
-
 
 export const getLaptopGamingAPI = async ({
   pageNo,
@@ -55,4 +54,12 @@ export const getProductAPI = async ({
   return await axiosInstance.get(
     `${env.PRODUCT_URL}?pageNo=${pageNo}&pageSize=${pageSize}&category=${slug}`
   )
+}
+
+export const getProductDetailByIdAPI = async ({
+  id
+}: {
+  id: number
+}): Promise<Product> => {
+  return await axiosInstance.get(`${env.PRODUCT_URL}/${id}`)
 }

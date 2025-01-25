@@ -20,6 +20,7 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
     "react-icons": "^5.4.0",
+    "react-ratings-declarative": "^3.4.1",
     "react-router-dom": "^6.28.1",
     "react-slick": "^0.30.3",
     "slick-carousel": "^1.8.1",

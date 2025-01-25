@@ -12,6 +12,11 @@ const CategoryComponent = lazy(
   () => import('@/modules/product/components/CategoryUI')
 )
 
+const DetailComponent = lazy(
+  () => import('@/modules/product/components/DetailUI')
+)
+
+// eslint-disable-next-line react-refresh/only-export-components
 const LazyLoad = (Component: FC) => (
   <Suspense
     fallback={
@@ -46,6 +51,10 @@ const router = createBrowserRouter([
       {
         path: 'category/:category',
         element: LazyLoad(CategoryComponent)
+      },
+      {
+        path: 'product/:handle/:id',
+        element: LazyLoad(DetailComponent)
       }
     ]
   },

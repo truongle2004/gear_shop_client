@@ -94,15 +94,7 @@ const HomeUI: FC = () => {
       </div>
 
       <SwipeToSlide>
-        {data?.content.map((item) => (
-          <Link
-            key={item.id}
-            to={`product/${item.handle}`}
-            className="link-no-decoration"
-          >
-            <CustomCard {...item} />
-          </Link>
-        ))}
+        {data?.content.map((item) => <CustomCard {...item} key={item.id} />)}
       </SwipeToSlide>
     </section>
   )
