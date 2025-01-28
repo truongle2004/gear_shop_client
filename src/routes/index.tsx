@@ -1,12 +1,8 @@
-import { FC, lazy, Suspense } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
 import Layout from '@/common/components/Layout'
+import { FC, lazy, Suspense } from 'react'
 import Spinner from 'react-bootstrap/esm/Spinner'
+import { createBrowserRouter } from 'react-router-dom'
 
-const LoginComponent = lazy(() => import('@/modules/auth/components/LoginUI'))
-const RegisterComponent = lazy(
-  () => import('@/modules/auth/components/RegisterUI')
-)
 const HomeComponent = lazy(() => import('@/modules/product/components/HomeUI'))
 const CategoryComponent = lazy(
   () => import('@/modules/product/components/CategoryUI')
@@ -38,14 +34,6 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: 'login',
-        element: LazyLoad(LoginComponent)
-      },
-      {
-        path: 'register',
-        element: LazyLoad(RegisterComponent)
-      },
-      {
         path: 'home',
         element: LazyLoad(HomeComponent)
       },
@@ -58,7 +46,7 @@ const router = createBrowserRouter([
         element: LazyLoad(DetailComponent)
       },
       {
-        path: 'cart',
+        path: 'carts',
         element: LazyLoad(CartCoponent)
       }
     ]

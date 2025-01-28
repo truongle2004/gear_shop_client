@@ -4,7 +4,6 @@ import Navbar from 'react-bootstrap/Navbar'
 import NavDropdown from 'react-bootstrap/NavDropdown'
 import { Outlet } from 'react-router-dom'
 import type { FC } from 'react'
-import Footer from '@/modules/product/components/Footer'
 
 const Layout: FC = () => {
   return (
@@ -41,7 +40,6 @@ const Layout: FC = () => {
         </Container>
       </Navbar>
       <Outlet />
-      <Footer />
     </>
   )
 }

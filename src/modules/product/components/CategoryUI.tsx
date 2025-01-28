@@ -7,6 +7,7 @@ import { getProductAPI } from '../services'
 import useCategoryStore from '../store/categoryStore'
 import CustomCard from './CustomCard'
 import ScrollToTopOnMount from './ScrollToTopOnMount'
+import Footer from './Footer'
 
 const DEFAUL_PAGE_NO = 1
 const DEFAUL_PAGE_SIZE = 50
@@ -69,6 +70,7 @@ const CategoryUI = () => {
           </Pagination>
         </div>
       </Container>
+      <Footer />
     </>
   )
 }

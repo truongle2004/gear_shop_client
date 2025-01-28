@@ -10,6 +10,7 @@ import CustomCard from './CustomCard'
 import SubHeader from './SubHeader'
 import SwipeToSlide from './SwipeToSlice'
 import ScrollToTopOnMount from './ScrollToTopOnMount'
+import Footer from './Footer'
 
 const PAGE_NO = 1
 const PAGE_SIZE = 20
@@ -113,6 +114,7 @@ const HomeUI: FC = () => {
         {renderSection('Ban Phim', keyboardData)}
         {renderSection('Man Hinh', monitorData)}
       </Container>
+      <Footer />
     </>
   )
 }
