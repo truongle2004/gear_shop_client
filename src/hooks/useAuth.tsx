@@ -9,6 +9,12 @@ const keycloak = new Keycloak({
   clientId: env.KEYCLOAK_CLIENT
 })
 
+/**
+ * this hookh handle keycloack login, if user not login, it will redirect to login form
+ * of keycloak by default
+ *
+ * @returns [isLogin: boolean, token: string]
+ */
 const useAuth = () => {
   const isRun = useRef(false)
   const [token, setToken] = useState('')
@@ -24,10 +30,14 @@ const useAuth = () => {
         onLoad: 'login-required'
       })
       .then(async (res) => {
+        // if login success it will return true, else false
         setLogin(res)
-        console.log(keycloak.token)
+
+        // when login success, it will call api to get token
         axiosInstance.defaults.headers.common['Authorization'] =
           `Bearer ${keycloak.token}`
+
+        // store token in-memory
         setToken(keycloak.token as string)
       })
       .catch((err) => console.log(err))

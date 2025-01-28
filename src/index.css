@@ -68,6 +68,11 @@ section {
   background-image: linear-gradient(0deg, #ffdee9 0%, #b5fffc 100%);
 }
 
+img {
+  width: 100%;
+  object-fit: cover;
+}
+
 .responsive-component {
   width: 100%;
 }
