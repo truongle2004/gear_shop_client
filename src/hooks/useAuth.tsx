@@ -33,9 +33,7 @@ const useAuth = () => {
         // if login success it will return true, else false
         setLogin(res)
 
-        // when login success, it will call api to get token
-        axiosInstance.defaults.headers.common['Authorization'] =
-          `Bearer ${keycloak.token}`
+        localStorage.setItem('token', keycloak.token as string)
 
         // store token in-memory
         setToken(keycloak.token as string)
