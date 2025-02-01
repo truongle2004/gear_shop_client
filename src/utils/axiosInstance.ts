@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { env } from '../enviroment'
+import { env } from '@/enviroment'
 
 const axiosInstance = axios.create({
   // this is core url for api (like http://localhost:8081)
@@ -9,12 +9,26 @@ const axiosInstance = axios.create({
   // Default header for json request
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  withCredentials: true
 })
 
+// store all public url
+const publicUrl = [env.PRODUCT_URL]
+
 axiosInstance.interceptors.request.use((config) => {
-  // After login, the token will be storeed in localStorage
+  // this condition make sure we don't add token to public url
+  // prevent error from calling api
+  if (publicUrl.some((item) => config.url?.includes(item))) {
+    // remove token from header to avoid existing track token
+    delete config.headers.Authorization
+    // Skip adding the token
+    return config
+  }
+
+  // TODO: consider get token from cookie
   const accessToken = localStorage.getItem('token')
+
   // We need to check token before sending request, in this case is checking accessToken in localStorage
   if (accessToken) {
     // if accessToken exist, add it to header (we must to send accessToken for certain request which need accessToken if we want to http endpont in server accept the request)
@@ -29,6 +43,12 @@ axiosInstance.interceptors.response.use(
     return response.data
   },
   (error) => {
+    // TODO: handle 403 error here
+    if (error.response.status === 403) {
+      localStorage.removeItem('token')
+      // TODO: need to handle refresh access token
+    }
+    console.log(error.response)
     return Promise.reject(error)
   }
 )

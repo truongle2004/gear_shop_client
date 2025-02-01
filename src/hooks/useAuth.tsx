@@ -1,13 +1,5 @@
-import { env } from '@/enviroment'
-import axiosInstance from '@/utils/axiosInstance'
-import Keycloak from 'keycloak-js'
+import { keycloakConfig } from '@/utils/keycloakConfig'
 import { useEffect, useRef, useState } from 'react'
-
-const keycloak = new Keycloak({
-  url: env.KEYCLOAK_URL,
-  realm: env.KEYClOAK_REALM,
-  clientId: env.KEYCLOAK_CLIENT
-})
 
 /**
  * this hookh handle keycloack login, if user not login, it will redirect to login form
@@ -25,7 +17,7 @@ const useAuth = () => {
 
     isRun.current = true
 
-    keycloak
+    keycloakConfig
       .init({
         onLoad: 'login-required'
       })
@@ -33,10 +25,11 @@ const useAuth = () => {
         // if login success it will return true, else false
         setLogin(res)
 
-        localStorage.setItem('token', keycloak.token as string)
+        // TODO: store in cookies intead of localStorage
+        localStorage.setItem('token', keycloakConfig.token as string)
 
         // store token in-memory
-        setToken(keycloak.token as string)
+        setToken(keycloakConfig.token as string)
       })
       .catch((err) => console.log(err))
   }, [])

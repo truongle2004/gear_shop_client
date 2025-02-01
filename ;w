@@ -1,14 +1,14 @@
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { FaStar } from 'react-icons/fa'
-import { useParams } from 'react-router-dom'
 import Ratings from 'react-ratings-declarative'
+import { useParams } from 'react-router-dom'
 import { Product, ProductData, type Image } from '../models'
 import { getProductAPI, getProductDetailByIdAPI } from '../services'
-import useCategoryStore from '../store/categoryStore'
 import Footer from './Footer'
 import ScrollToTopOnMount from './ScrollToTopOnMount'
-import { formatPriceVND } from '@/utils/formatPrice'
+import useCategoryStore from '../store/categoryStore'
+import { randomInt } from 'crypto'
 
 const iconPath =
   'M18.571 7.221c0 0.201-0.145 0.391-0.29 0.536l-4.051 3.951 0.96 5.58c0.011 0.078 0.011 0.145 0.011 0.223 0 0.29-0.134 0.558-0.458 0.558-0.156 0-0.313-0.056-0.446-0.134l-5.011-2.634-5.011 2.634c-0.145 0.078-0.29 0.134-0.446 0.134-0.324 0-0.469-0.268-0.469-0.558 0-0.078 0.011-0.145 0.022-0.223l0.96-5.58-4.063-3.951c-0.134-0.145-0.279-0.335-0.279-0.536 0-0.335 0.346-0.469 0.625-0.513l5.603-0.815 2.511-5.078c0.1-0.212 0.29-0.458 0.547-0.458s0.446 0.246 0.547 0.458l2.511 5.078 5.603 0.815c0.268 0.045 0.625 0.179 0.625 0.513z'
@@ -19,10 +19,10 @@ const DetailUI = () => {
   const [detailData, setDetailData] = useState<Product>()
   const [images, setImages] = useState<Image[]>([])
   const { id } = useParams()
-  const [productData, setProductData] = useState<Product[]>([])
+  const [productData, setProductData] = useState<ProductData>()
   const [imageIndex, setImageIndex] = useState(0)
   const { listCategory } = useCategoryStore()
-  const { mutateAsync: fetchProductDetail } = useMutation({
+  const { mutate: fetchProductDetail } = useMutation({
     mutationFn: getProductDetailByIdAPI,
     onSuccess: (data) => {
       setDetailData(data)
@@ -30,39 +30,39 @@ const DetailUI = () => {
     }
   })
 
-  const { mutateAsync: fetchProductsAPI } = useMutation({
+  const { mutate: fetchProductsAPI } = useMutation({
     mutationFn: getProductAPI,
-    onSuccess: (data) => {
-      for (let i = 0; i < 4; i++) {
-        const length = data.content.length
-        const content = data.content[Math.floor(Math.random() * length)]
-        setProductData((prev) => [...prev, content])
-      }
-    }
+    onSuccess: (data) => setProductData(data)
   })
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetchProductDetail({ id: Number(id) })
-
-        await fetchProductsAPI({
-          pageNo: 1,
-          pageSize: 50,
-          slug: listCategory
-            .filter((item) => item.name === res?.category)
-            .at(0)?.slug as string
-        })
-      } catch (err) {
-        console.log(err)
-      }
+    if (id) {
+      fetchProductDetail({ id: Number(id) })
     }
-
-    fetchData()
+    fetchProductsAPI({
+      pageNo: 1,
+      pageSize: 50,
+      slug: listCategory
+        .filter((item) => item.name === detailData?.category)
+        .at(0)?.slug as string
+    })
   }, [])
 
   const ClickImage = (index: number) => {
     setImageIndex(index)
+  }
+
+  const randomProducts = () => {
+    if (!productData?.content || productData.content.length === 0) return null
+
+    const randomItems = []
+    for (let i = 0; i < 4; i++) {
+      const length = productData.content.length
+      const data = productData.content[Math.floor(Math.random() * length)]
+      randomItems.push(<div key={i}>{data?.title}</div>)
+    }
+
+    return <>{randomItems}</>
   }
 
   return (
@@ -70,7 +70,7 @@ const DetailUI = () => {
       <div
         className="container mt-5 py-4 px-xl-5"
         style={{
-          width: '80%'
+          width: '70%'
         }}
       >
         <ScrollToTopOnMount />
@@ -173,7 +173,7 @@ const DetailUI = () => {
               width: '70%'
             }}
           >
-            <h4 className="mb-0 text-center">Description</h4>
+            <h4 className="mb-0">Description</h4>
             <hr />
             <div className="bg-light">
               <p
@@ -192,18 +192,16 @@ const DetailUI = () => {
               flexDirection: 'column'
             }}
           >
-            {/*<section>
-              <h5 className="mb-0 text-center mb-3">Thông số kỹ thuật</h5>
-
-              <hr />
+            <section>
               <div className="bg-light">
                 <table className="table">
+                  
                   <tbody>
                     {[...new Set(detailData?.tags.split(','))].map((item) => {
                       const [key, value] = item.split(':')
                       return (
                         <tr key={key}>
-                          <td className="fs-6">
+                          <td className='fs-6'>
                             <strong>{key.split('_')[1]}</strong>
                           </td>
                           <td>{value}</td>
@@ -214,40 +212,7 @@ const DetailUI = () => {
                 </table>
               </div>
             </section>
-          */}
-            <section>
-              <h5>Có thể bạn quan tâm</h5>
-              <div>
-                {productData?.map((item) => {
-                  if (!item) return null
-                  return (
-                    <div key={item?.id} className="d-flex gap-3 m-2">
-                      <img
-                        style={{
-                          objectFit: 'contain',
-                          width: '100px'
-                        }}
-                        src={item?.images[0].src}
-                        alt={item?.images[0].alt}
-                      />
-
-                      <div>
-                        <p
-                          style={{
-                            fontSize: '14px'
-                          }}
-                        >
-                          {item?.title}
-                        </p>
-                        <p className="text-danger">
-                          <strong>{formatPriceVND(item?.price)}</strong>
-                        </p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </section>
+            <section>{randomProducts()}</section>
           </div>
         </div>
 

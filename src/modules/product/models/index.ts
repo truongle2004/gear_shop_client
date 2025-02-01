@@ -16,7 +16,7 @@ export interface Image {
 export interface Product {
   id: number
   available: boolean
-  handle: string
+  slug: string
   title: string
   description: string
   tags: string
