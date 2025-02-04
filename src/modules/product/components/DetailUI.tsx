@@ -1,5 +1,6 @@
 import { formatPriceVND } from '@/utils/formatPrice'
-import { useMutation } from '@tanstack/react-query'
+import { scrollToTop } from '@/utils/scrollToTop'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { FaStar } from 'react-icons/fa'
 import Ratings from 'react-ratings-declarative'
@@ -8,59 +9,46 @@ import { Product, type Image } from '../models'
 import { getProductAPI, getProductDetailByIdAPI } from '../services'
 import useCategoryStore from '../store/categoryStore'
 import Footer from './Footer'
-import ScrollToTopOnMount from './ScrollToTopOnMount'
-import { scrollToTop } from '@/utils/scrollToTop'
 
 const iconPath =
   'M18.571 7.221c0 0.201-0.145 0.391-0.29 0.536l-4.051 3.951 0.96 5.58c0.011 0.078 0.011 0.145 0.011 0.223 0 0.29-0.134 0.558-0.458 0.558-0.156 0-0.313-0.056-0.446-0.134l-5.011-2.634-5.011 2.634c-0.145 0.078-0.29 0.134-0.446 0.134-0.324 0-0.469-0.268-0.469-0.558 0-0.078 0.011-0.145 0.022-0.223l0.96-5.58-4.063-3.951c-0.134-0.145-0.279-0.335-0.279-0.536 0-0.335 0.346-0.469 0.625-0.513l5.603-0.815 2.511-5.078c0.1-0.212 0.29-0.458 0.547-0.458s0.446 0.246 0.547 0.458l2.511 5.078 5.603 0.815c0.268 0.045 0.625 0.179 0.625 0.513z'
 
+const DEFAULT_PAGE_NO = 1
+const DEFAULT_PAGE_SIZE = 20
+
 // TODO: add reviews
-// TODO:
 const DetailUI = () => {
-  const [detailData, setDetailData] = useState<Product>()
-  const [images, setImages] = useState<Image[]>([])
   const { id } = useParams()
-  const [productData, setProductData] = useState<Product[]>([])
   const [imageIndex, setImageIndex] = useState(0)
   const { listCategory } = useCategoryStore()
-  const { mutateAsync: fetchProductDetail } = useMutation({
-    mutationFn: getProductDetailByIdAPI,
-    onSuccess: (data) => {
-      setDetailData(data)
-      setImages(data.images)
-    }
+
+  const { data: detailData } = useQuery({
+    queryKey: ['detail', id],
+    queryFn: () => getProductDetailByIdAPI({ id: Number(id) }),
+    enabled: !!id
   })
 
-  const { mutateAsync: fetchProductsAPI } = useMutation({
-    mutationFn: getProductAPI,
-    onSuccess: (data) => {
-      setProductData([])
-      for (let i = 0; i < 4; i++) {
-        const length = data.content.length
-        const content = data.content[Math.floor(Math.random() * length)]
-        setProductData((prev) => [...prev, content])
-      }
-    }
+  const productCategorySlug = listCategory
+    .filter((item) => item.name === detailData?.category)
+    .at(0)?.slug
+
+  const { data: products } = useQuery({
+    queryKey: [
+      'products',
+      DEFAULT_PAGE_NO,
+      DEFAULT_PAGE_SIZE,
+      productCategorySlug
+    ],
+    queryFn: () =>
+      getProductAPI({
+        pageNo: DEFAULT_PAGE_NO,
+        pageSize: DEFAULT_PAGE_SIZE,
+        slug: productCategorySlug as string
+      }),
+    enabled: !!productCategorySlug
   })
-
-  const fetchData = async () => {
-    try {
-      const res = await fetchProductDetail({ id: Number(id) })
-
-      // FIXME: need to consider
-      await fetchProductsAPI({
-        pageNo: 1,
-        pageSize: 50,
-        slug: listCategory.filter((item) => item.name === res?.category).at(0)
-          ?.slug as string
-      })
-    } catch (err) {
-      console.log('fetch detail error', err)
-    }
-  }
 
   useEffect(() => {
-    fetchData()
     scrollToTop()
   }, [id])
 
@@ -69,7 +57,6 @@ const DetailUI = () => {
   }
 
   // TODO: need to handle display when there is no description
-
   return (
     <>
       <div
@@ -89,7 +76,7 @@ const DetailUI = () => {
               }}
             >
               <div className="d-flex flex-column">
-                {images.map((image) => (
+                {detailData?.images.map((image) => (
                   <img
                     key={image.id}
                     className="cover rounded mb-2"
@@ -213,44 +200,45 @@ const DetailUI = () => {
             <section>
               <h5>Có thể bạn quan tâm</h5>
               <div>
-                {productData?.map((item) => {
+                {products?.content?.map((item, index) => {
                   if (!item) return null
-                  return (
-                    <Link
-                      to={`/tech_shop/pages/product/${item.slug}/${item.id}`}
-                      className="link-no-decoration"
-                      key={item?.id}
-                    >
-                      <div
-                        className="d-flex gap-3 m-2"
-                        style={{
-                          cursor: 'pointer'
-                        }}
+                  if (index < 6)
+                    return (
+                      <Link
+                        to={`/tech_shop/pages/product/${item.slug}/${item.id}`}
+                        className="link-no-decoration"
+                        key={item?.id}
                       >
-                        <img
+                        <div
+                          className="d-flex gap-3 m-2"
                           style={{
-                            objectFit: 'contain',
-                            width: '100px'
+                            cursor: 'pointer'
                           }}
-                          src={item?.images[0].src}
-                          alt={item?.images[0].alt}
-                        />
-
-                        <div>
-                          <p
+                        >
+                          <img
                             style={{
-                              fontSize: '10px'
+                              objectFit: 'contain',
+                              width: '100px'
                             }}
-                          >
-                            {item?.title}
-                          </p>
-                          <p className="text-danger">
-                            <strong>{formatPriceVND(item?.price)}</strong>
-                          </p>
+                            src={item?.images[0].src}
+                            alt={item?.images[0].alt}
+                          />
+
+                          <div>
+                            <p
+                              style={{
+                                fontSize: '10px'
+                              }}
+                            >
+                              {item?.title}
+                            </p>
+                            <p className="text-danger">
+                              <strong>{formatPriceVND(item?.price)}</strong>
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  )
+                      </Link>
+                    )
                 })}
               </div>
             </section>
