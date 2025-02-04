@@ -1,6 +1,6 @@
 import useAuth from '@/hooks/useAuth'
 import { useMutation } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import { getCartAPI } from '../services'
@@ -10,6 +10,7 @@ import { getSuggestedProductAPI } from '@/modules/product/services'
 const CartUI = () => {
   // TODO: need to consider here
   const [isLogin, token] = useAuth()
+  const [cart, setCart] = useState([])
 
   const { mutate: fetchCartAPI } = useMutation({
     mutationFn: getCartAPI,
@@ -81,6 +82,11 @@ const CartUI = () => {
                   </table>
                 </div>
               </div>
+              {cart.length === 0 && (
+                <div className="alert alert-info text-center mt-3" role="alert">
+                  Your cart is empty
+                </div>
+              )}
             </aside>
             <aside className="col-lg-3">
               <div className="card mb-3">

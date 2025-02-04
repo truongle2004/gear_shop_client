@@ -9,6 +9,7 @@ import { getProductAPI, getProductDetailByIdAPI } from '../services'
 import useCategoryStore from '../store/categoryStore'
 import Footer from './Footer'
 import ScrollToTopOnMount from './ScrollToTopOnMount'
+import { scrollToTop } from '@/utils/scrollToTop'
 
 const iconPath =
   'M18.571 7.221c0 0.201-0.145 0.391-0.29 0.536l-4.051 3.951 0.96 5.58c0.011 0.078 0.011 0.145 0.011 0.223 0 0.29-0.134 0.558-0.458 0.558-0.156 0-0.313-0.056-0.446-0.134l-5.011-2.634-5.011 2.634c-0.145 0.078-0.29 0.134-0.446 0.134-0.324 0-0.469-0.268-0.469-0.558 0-0.078 0.011-0.145 0.022-0.223l0.96-5.58-4.063-3.951c-0.134-0.145-0.279-0.335-0.279-0.536 0-0.335 0.346-0.469 0.625-0.513l5.603-0.815 2.511-5.078c0.1-0.212 0.29-0.458 0.547-0.458s0.446 0.246 0.547 0.458l2.511 5.078 5.603 0.815c0.268 0.045 0.625 0.179 0.625 0.513z'
@@ -46,6 +47,7 @@ const DetailUI = () => {
     try {
       const res = await fetchProductDetail({ id: Number(id) })
 
+      // FIXME: need to consider
       await fetchProductsAPI({
         pageNo: 1,
         pageSize: 50,
@@ -59,6 +61,7 @@ const DetailUI = () => {
 
   useEffect(() => {
     fetchData()
+    scrollToTop()
   }, [id])
 
   const ClickImage = (index: number) => {
@@ -75,19 +78,27 @@ const DetailUI = () => {
           width: '80%'
         }}
       >
-        <ScrollToTopOnMount />
-
         <div className="row mb-4">
           <div className="d-none d-lg-block col-lg-1">
-            <div className="image-vertical-scroller">
+            <div
+              className="image-vertical-scroller"
+              style={{
+                maxHeight: '500px',
+                overflowY: 'auto',
+                overflowX: 'hidden'
+              }}
+            >
               <div className="d-flex flex-column">
                 {images.map((image) => (
                   <img
                     key={image.id}
                     className="cover rounded mb-2"
-                    width="70"
-                    height="70"
+                    width="40"
+                    height="40"
                     onClick={() => ClickImage(image.position - 1)}
+                    style={{
+                      objectFit: 'cover'
+                    }}
                     alt={image.alt}
                     src={image.src}
                   />
@@ -112,7 +123,10 @@ const DetailUI = () => {
           <div className="col-lg-5">
             <div className="d-flex flex-column h-100">
               <h2 className="mb-1">{detailData?.title}</h2>
-              <h4 className="text-muted mb-4">10000 Ks</h4>
+
+              <h4 className="text-danger">
+                <strong>{formatPriceVND(detailData?.price as number)}</strong>
+              </h4>
 
               <div className="row g-3 mb-4">
                 <div className="col">
@@ -196,29 +210,6 @@ const DetailUI = () => {
               flexDirection: 'column'
             }}
           >
-            {/*<section>
-              <h5 className="mb-0 text-center mb-3">Thông số kỹ thuật</h5>
-
-              <hr />
-              <div className="bg-light">
-                <table className="table">
-                  <tbody>
-                    {[...new Set(detailData?.tags.split(','))].map((item) => {
-                      const [key, value] = item.split(':')
-                      return (
-                        <tr key={key}>
-                          <td className="fs-6">
-                            <strong>{key.split('_')[1]}</strong>
-                          </td>
-                          <td>{value}</td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          */}
             <section>
               <h5>Có thể bạn quan tâm</h5>
               <div>
@@ -248,7 +239,7 @@ const DetailUI = () => {
                         <div>
                           <p
                             style={{
-                              fontSize: '14px'
+                              fontSize: '10px'
                             }}
                           >
                             {item?.title}

@@ -81,8 +81,8 @@ const HomeUI: FC = () => {
       {!isLoadingProducts && (
         <Container>
           <div>
-            <img src={image1} alt="" />
-            <img src={image2} alt="" />
+            <img src={image1} alt="img1" />
+            <img src={image2} alt="img2" />
           </div>
           {successfulProducts.map((data) => {
             return renderSection(data.content[0].category, data)
