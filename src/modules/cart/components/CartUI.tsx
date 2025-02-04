@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import { getCartAPI } from '../services'
+import { getSuggestedProductAPI } from '@/modules/product/services'
 
 // TODO: user should login before accessing cart
 const CartUI = () => {

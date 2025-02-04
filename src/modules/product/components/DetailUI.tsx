@@ -1,14 +1,14 @@
+import { formatPriceVND } from '@/utils/formatPrice'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { FaStar } from 'react-icons/fa'
-import { useParams } from 'react-router-dom'
 import Ratings from 'react-ratings-declarative'
-import { Product, ProductData, type Image } from '../models'
+import { Link, useParams } from 'react-router-dom'
+import { Product, type Image } from '../models'
 import { getProductAPI, getProductDetailByIdAPI } from '../services'
 import useCategoryStore from '../store/categoryStore'
 import Footer from './Footer'
 import ScrollToTopOnMount from './ScrollToTopOnMount'
-import { formatPriceVND } from '@/utils/formatPrice'
 
 const iconPath =
   'M18.571 7.221c0 0.201-0.145 0.391-0.29 0.536l-4.051 3.951 0.96 5.58c0.011 0.078 0.011 0.145 0.011 0.223 0 0.29-0.134 0.558-0.458 0.558-0.156 0-0.313-0.056-0.446-0.134l-5.011-2.634-5.011 2.634c-0.145 0.078-0.29 0.134-0.446 0.134-0.324 0-0.469-0.268-0.469-0.558 0-0.078 0.011-0.145 0.022-0.223l0.96-5.58-4.063-3.951c-0.134-0.145-0.279-0.335-0.279-0.536 0-0.335 0.346-0.469 0.625-0.513l5.603-0.815 2.511-5.078c0.1-0.212 0.29-0.458 0.547-0.458s0.446 0.246 0.547 0.458l2.511 5.078 5.603 0.815c0.268 0.045 0.625 0.179 0.625 0.513z'
@@ -33,6 +33,7 @@ const DetailUI = () => {
   const { mutateAsync: fetchProductsAPI } = useMutation({
     mutationFn: getProductAPI,
     onSuccess: (data) => {
+      setProductData([])
       for (let i = 0; i < 4; i++) {
         const length = data.content.length
         const content = data.content[Math.floor(Math.random() * length)]
@@ -41,29 +42,30 @@ const DetailUI = () => {
     }
   })
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetchProductDetail({ id: Number(id) })
+  const fetchData = async () => {
+    try {
+      const res = await fetchProductDetail({ id: Number(id) })
 
-        await fetchProductsAPI({
-          pageNo: 1,
-          pageSize: 50,
-          slug: listCategory
-            .filter((item) => item.name === res?.category)
-            .at(0)?.slug as string
-        })
-      } catch (err) {
-        console.log(err)
-      }
+      await fetchProductsAPI({
+        pageNo: 1,
+        pageSize: 50,
+        slug: listCategory.filter((item) => item.name === res?.category).at(0)
+          ?.slug as string
+      })
+    } catch (err) {
+      console.log('fetch detail error', err)
     }
+  }
 
+  useEffect(() => {
     fetchData()
-  }, [])
+  }, [id])
 
   const ClickImage = (index: number) => {
     setImageIndex(index)
   }
+
+  // TODO: need to handle display when there is no description
 
   return (
     <>
@@ -168,23 +170,25 @@ const DetailUI = () => {
             flexDirection: 'row'
           }}
         >
-          <section
-            style={{
-              width: '70%'
-            }}
-          >
-            <h4 className="mb-0 text-center">Description</h4>
-            <hr />
-            <div className="bg-light">
-              <p
-                className="lead link-no-decoration"
-                style={{ whiteSpace: 'pre-wrap', padding: '10px 20px' }}
-                dangerouslySetInnerHTML={{
-                  __html: detailData?.description as string
-                }}
-              ></p>
-            </div>
-          </section>
+          {detailData?.description && (
+            <section
+              style={{
+                width: '70%'
+              }}
+            >
+              <h4 className="mb-0 text-center">Description</h4>
+              <hr />
+              <div className="bg-light">
+                <p
+                  className="lead link-no-decoration"
+                  style={{ whiteSpace: 'pre-wrap', padding: '10px 20px' }}
+                  dangerouslySetInnerHTML={{
+                    __html: detailData?.description as string
+                  }}
+                ></p>
+              </div>
+            </section>
+          )}
 
           <div
             style={{
@@ -221,29 +225,40 @@ const DetailUI = () => {
                 {productData?.map((item) => {
                   if (!item) return null
                   return (
-                    <div key={item?.id} className="d-flex gap-3 m-2">
-                      <img
+                    <Link
+                      to={`/tech_shop/pages/product/${item.slug}/${item.id}`}
+                      className="link-no-decoration"
+                      key={item?.id}
+                    >
+                      <div
+                        className="d-flex gap-3 m-2"
                         style={{
-                          objectFit: 'contain',
-                          width: '100px'
+                          cursor: 'pointer'
                         }}
-                        src={item?.images[0].src}
-                        alt={item?.images[0].alt}
-                      />
-
-                      <div>
-                        <p
+                      >
+                        <img
                           style={{
-                            fontSize: '14px'
+                            objectFit: 'contain',
+                            width: '100px'
                           }}
-                        >
-                          {item?.title}
-                        </p>
-                        <p className="text-danger">
-                          <strong>{formatPriceVND(item?.price)}</strong>
-                        </p>
+                          src={item?.images[0].src}
+                          alt={item?.images[0].alt}
+                        />
+
+                        <div>
+                          <p
+                            style={{
+                              fontSize: '14px'
+                            }}
+                          >
+                            {item?.title}
+                          </p>
+                          <p className="text-danger">
+                            <strong>{formatPriceVND(item?.price)}</strong>
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   )
                 })}
               </div>

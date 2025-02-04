@@ -7,7 +7,7 @@ import { ParsedTags } from '../types'
 import { Link } from 'react-router-dom'
 
 const CustomCard: FC<Product> = (props) => {
-  const { id, handle, title, tags, price, images } = props
+  const { id, slug, title, tags, price, images } = props
 
   // Safely parse tags string into a record
   // TODO: avoid duplicating value
@@ -20,7 +20,7 @@ const CustomCard: FC<Product> = (props) => {
 
   return (
     <Link
-      to={`/tech_shop/pages/product/${handle}/${id}`}
+      to={`/tech_shop/pages/product/${slug}/${id}`}
       className="link-no-decoration"
     >
       <Card

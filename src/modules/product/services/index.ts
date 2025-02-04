@@ -63,3 +63,7 @@ export const getProductDetailByIdAPI = async ({
 }): Promise<Product> => {
   return await axiosInstance.get(`${env.PRODUCT_URL}/${id}`)
 }
+
+export const getSuggestedProductAPI = async (): Promise<string[]> => {
+  return await axiosInstance.get(`${env.PRODUCT_URL}/suggestions`)
+}

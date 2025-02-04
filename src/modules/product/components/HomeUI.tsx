@@ -1,16 +1,17 @@
-import { useMutation } from '@tanstack/react-query'
-import { FC, useEffect, useState } from 'react'
+import { useQueries, useQuery } from '@tanstack/react-query'
+import { FC, useState } from 'react'
 import { Container } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import image1 from '../../../../public/layout_web__1015x325.webp'
 import image2 from '../../../../public/layout_web__1015x325_ghe_ha_gia.webp'
-import { ProductData } from '../models'
-import { getProductAPI } from '../services'
+import { Product, ProductData } from '../models'
+import { getProductAPI, getSuggestedProductAPI } from '../services'
 import CustomCard from './CustomCard'
+import Footer from './Footer'
+import ScrollToTopOnMount from './ScrollToTopOnMount'
 import SubHeader from './SubHeader'
 import SwipeToSlide from './SwipeToSlice'
-import ScrollToTopOnMount from './ScrollToTopOnMount'
-import Footer from './Footer'
+import { queryObjects } from 'v8'
 
 const PAGE_NO = 1
 const PAGE_SIZE = 20
@@ -24,59 +25,31 @@ const HomeUI: FC = () => {
 
   const [monitorData, setMonitorData] = useState<ProductData>()
 
-  const { mutate: getKeyBoardMutation } = useMutation({
-    mutationFn: getProductAPI,
-    onSuccess: (data) => {
-      setKeyBoardData(data)
-    }
+  const { data: suggestedSlug, isLoading } = useQuery({
+    queryKey: ['suggestedSlug'],
+    queryFn: getSuggestedProductAPI
   })
 
-  const { mutate: getLaptopMutation } = useMutation({
-    mutationFn: getProductAPI,
-    onSuccess: (data) => {
-      setLaptopGamingData(data)
-    }
+  const ProductQueries = useQueries({
+    queries:
+      !isLoading && Array.isArray(suggestedSlug)
+        ? suggestedSlug?.map((item) => ({
+            queryKey: [item],
+            queryFn: () =>
+              getProductAPI({
+                pageNo: PAGE_NO,
+                pageSize: PAGE_SIZE,
+                slug: item
+              })
+          }))
+        : []
   })
 
-  const { mutate: getMouseMutation } = useMutation({
-    mutationFn: getProductAPI,
-    onSuccess: (data) => {
-      setMouseData(data)
-    }
-  })
+  const isLoadingProducts = ProductQueries.some((item) => item.isLoading)
 
-  const { mutate: getMonitorMutation } = useMutation({
-    mutationFn: getProductAPI,
-    onSuccess: (data) => {
-      setMonitorData(data)
-    }
-  })
-
-  useEffect(() => {
-    getLaptopMutation({
-      pageNo: PAGE_NO,
-      pageSize: PAGE_SIZE,
-      slug: 'laptop-gaming'
-    })
-
-    getMouseMutation({
-      pageNo: PAGE_NO,
-      pageSize: PAGE_SIZE,
-      slug: 'chuot'
-    })
-
-    getKeyBoardMutation({
-      pageNo: PAGE_NO,
-      pageSize: PAGE_SIZE,
-      slug: 'ban-phim'
-    })
-
-    getMonitorMutation({
-      pageNo: PAGE_NO,
-      pageSize: PAGE_SIZE,
-      slug: 'man-hinh'
-    })
-  }, [])
+  const successfulProducts = ProductQueries.filter(
+    (query) => query.isSuccess && query.data
+  ).map((query) => query.data as ProductData)
 
   const renderSection = (title: string, data: ProductData | undefined) => (
     <section>
@@ -104,16 +77,19 @@ const HomeUI: FC = () => {
     <>
       <SubHeader />
       <ScrollToTopOnMount />
-      <Container>
-        <div>
-          <img src={image1} alt="" />
-          <img src={image2} alt="" />
-        </div>
-        {renderSection('Laptop Gaming', laptopGamingData)}
-        {renderSection('Chuot', mouseData)}
-        {renderSection('Ban Phim', keyboardData)}
-        {renderSection('Man Hinh', monitorData)}
-      </Container>
+      {isLoadingProducts && <div>Loading...</div>}
+      {!isLoadingProducts && (
+        <Container>
+          <div>
+            <img src={image1} alt="" />
+            <img src={image2} alt="" />
+          </div>
+          {successfulProducts.map((data) => {
+            return renderSection(data.content[0].category, data)
+          })}
+        </Container>
+      )}
+
       <Footer />
     </>
   )
