@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { Link } from 'react-router-dom'
-import useCategoryStore from '../store/categoryStore'
+import useCategoryStore from '@/store/categoryStore'
 
 const SubHeader: FC = () => {
   const categories = useCategoryStore((state) => state.listCategory)

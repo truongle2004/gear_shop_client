@@ -5,10 +5,10 @@ import { useEffect, useState } from 'react'
 import { FaStar } from 'react-icons/fa'
 import Ratings from 'react-ratings-declarative'
 import { Link, useParams } from 'react-router-dom'
-import { Product, type Image } from '../models'
 import { getProductAPI, getProductDetailByIdAPI } from '../services'
-import useCategoryStore from '../store/categoryStore'
 import Footer from './Footer'
+import { addProductToCartAPI } from '@/modules/cart/services'
+import useCategoryStore from '@/store/categoryStore'
 
 const iconPath =
   'M18.571 7.221c0 0.201-0.145 0.391-0.29 0.536l-4.051 3.951 0.96 5.58c0.011 0.078 0.011 0.145 0.011 0.223 0 0.29-0.134 0.558-0.458 0.558-0.156 0-0.313-0.056-0.446-0.134l-5.011-2.634-5.011 2.634c-0.145 0.078-0.29 0.134-0.446 0.134-0.324 0-0.469-0.268-0.469-0.558 0-0.078 0.011-0.145 0.022-0.223l0.96-5.58-4.063-3.951c-0.134-0.145-0.279-0.335-0.279-0.536 0-0.335 0.346-0.469 0.625-0.513l5.603-0.815 2.511-5.078c0.1-0.212 0.29-0.458 0.547-0.458s0.446 0.246 0.547 0.458l2.511 5.078 5.603 0.815c0.268 0.045 0.625 0.179 0.625 0.513z'
@@ -22,19 +22,24 @@ const DetailUI = () => {
   const [imageIndex, setImageIndex] = useState(0)
   const { listCategory } = useCategoryStore()
 
+  // call api get detail product by id
   const { data: detailData } = useQuery({
     queryKey: ['detail', id],
     queryFn: () => getProductDetailByIdAPI({ id: Number(id) }),
+    // this query will only run when id is not null
     enabled: !!id
   })
 
+  // after call product detail success, get more recommend product by category slug
   const productCategorySlug = listCategory
     .filter((item) => item.name === detailData?.category)
     .at(0)?.slug
 
+  // call api get more recommend product
   const { data: products } = useQuery({
     queryKey: [
       'products',
+      // set params for get more recommend product
       DEFAULT_PAGE_NO,
       DEFAULT_PAGE_SIZE,
       productCategorySlug
@@ -45,14 +50,27 @@ const DetailUI = () => {
         pageSize: DEFAULT_PAGE_SIZE,
         slug: productCategorySlug as string
       }),
+    // this query will only run when productCategorySlug is not null
     enabled: !!productCategorySlug
   })
 
+  const mutation = useMutation({
+    mutationFn: addProductToCartAPI,
+    onSuccess: (data) => {
+      console.log(data)
+    }
+  })
+
+  const handleAddToCartButton = () => {
+    mutation.mutate(mutation)
+  }
+
   useEffect(() => {
+    // each time refresh page, scroll to top
     scrollToTop()
   }, [id])
 
-  const ClickImage = (index: number) => {
+  const clickImage = (index: number) => {
     setImageIndex(index)
   }
 
@@ -82,7 +100,7 @@ const DetailUI = () => {
                     className="cover rounded mb-2"
                     width="40"
                     height="40"
-                    onClick={() => ClickImage(image.position - 1)}
+                    onClick={() => clickImage(image.position - 1)}
                     style={{
                       objectFit: 'cover'
                     }}

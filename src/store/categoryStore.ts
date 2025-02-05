@@ -1,5 +1,5 @@
+import { Category } from '@/modules/product/models'
 import { create } from 'zustand'
-import type { Category } from '../models'
 
 interface CategoryState {
   listCategory: Category[]
