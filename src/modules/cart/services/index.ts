@@ -10,13 +10,16 @@ export const addProductToCartAPI = async ({
   quantity,
   productId
 }: {
-  userId: number
+  userId: string
   quantity: number
   productId: number
 }): Promise<string> => {
-  return await axiosInstance.post(`${env.CART_URL}/add`, {
-    userId,
-    quantity,
-    productId
+  // NOTE: null as the second argument (POST typically expects a body, but we're only sending query params)
+  return await axiosInstance.post(`${env.CART_URL}/add`, null, {
+    params: {
+      userId,
+      quantity,
+      productId
+    }
   })
 }

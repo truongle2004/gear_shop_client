@@ -13,6 +13,7 @@ const CartUI = () => {
     onSuccess: (data) => console.log(data)
   })
 
+
   useEffect(() => {
     fetchCartAPI()
     authenticateUser()

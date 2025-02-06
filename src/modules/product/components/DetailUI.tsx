@@ -1,14 +1,16 @@
+import { addProductToCartAPI } from '@/modules/cart/services'
+import useAuthStore from '@/store/authStore'
+import useCategoryStore from '@/store/categoryStore'
 import { formatPriceVND } from '@/utils/formatPrice'
 import { scrollToTop } from '@/utils/scrollToTop'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import { Button } from 'react-bootstrap'
 import { FaStar } from 'react-icons/fa'
 import Ratings from 'react-ratings-declarative'
 import { Link, useParams } from 'react-router-dom'
 import { getProductAPI, getProductDetailByIdAPI } from '../services'
 import Footer from './Footer'
-import { addProductToCartAPI } from '@/modules/cart/services'
-import useCategoryStore from '@/store/categoryStore'
 
 const iconPath =
   'M18.571 7.221c0 0.201-0.145 0.391-0.29 0.536l-4.051 3.951 0.96 5.58c0.011 0.078 0.011 0.145 0.011 0.223 0 0.29-0.134 0.558-0.458 0.558-0.156 0-0.313-0.056-0.446-0.134l-5.011-2.634-5.011 2.634c-0.145 0.078-0.29 0.134-0.446 0.134-0.324 0-0.469-0.268-0.469-0.558 0-0.078 0.011-0.145 0.022-0.223l0.96-5.58-4.063-3.951c-0.134-0.145-0.279-0.335-0.279-0.536 0-0.335 0.346-0.469 0.625-0.513l5.603-0.815 2.511-5.078c0.1-0.212 0.29-0.458 0.547-0.458s0.446 0.246 0.547 0.458l2.511 5.078 5.603 0.815c0.268 0.045 0.625 0.179 0.625 0.513z'
@@ -21,6 +23,8 @@ const DetailUI = () => {
   const { id } = useParams()
   const [imageIndex, setImageIndex] = useState(0)
   const { listCategory } = useCategoryStore()
+  const [quantity, setQuantity] = useState(1)
+  const { authenticateUser, userInfo, getUserInfo } = useAuthStore()
 
   // call api get detail product by id
   const { data: detailData } = useQuery({
@@ -61,8 +65,31 @@ const DetailUI = () => {
     }
   })
 
-  const handleAddToCartButton = () => {
-    mutation.mutate(mutation)
+  const handleAddToCartButton = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault()
+
+    if (!userInfo.id) {
+      await authenticateUser()
+      getUserInfo()
+      return
+    }
+
+    mutation.mutate({
+      productId: Number(id),
+      quantity,
+      userId: userInfo.id
+    })
+  }
+
+  const reduceQuantity = () => {
+    if (quantity == 1) return
+    setQuantity((prev) => prev - 1)
+  }
+
+  const increaseQuantity = () => {
+    setQuantity((prev) => prev + 1)
   }
 
   useEffect(() => {
@@ -135,13 +162,36 @@ const DetailUI = () => {
 
               <div className="row g-3 mb-4">
                 <div className="col">
-                  <button className="btn btn-outline-dark py-2 w-100">
+                  <button
+                    className="btn btn-outline-dark py-2 w-100"
+                    onClick={handleAddToCartButton}
+                  >
                     Add to cart
                   </button>
                 </div>
                 <div className="col">
                   <button className="btn btn-dark py-2 w-100">Buy now</button>
                 </div>
+              </div>
+
+              <div className="d-flex align-items-center gap-2">
+                <Button
+                  className="btn btn-primary"
+                  size="sm"
+                  onClick={reduceQuantity}
+                  aria-label="Decrease quantity"
+                >
+                  -
+                </Button>
+                <p className="m-0 fw-bold">{quantity}</p>
+                <Button
+                  className="btn btn-primary"
+                  size="sm"
+                  onClick={increaseQuantity}
+                  aria-label="Increase quantity"
+                >
+                  +
+                </Button>
               </div>
 
               <h4 className="mb-0">Details</h4>

@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { env } from '@/enviroment'
+import { keycloakConfig } from './keycloakConfig'
+import { access } from 'fs'
 
 const axiosInstance = axios.create({
   // this is core url for api (like http://localhost:8081)
@@ -26,14 +28,14 @@ axiosInstance.interceptors.request.use((config) => {
     return config
   }
 
-  // TODO: consider get token from cookie
-  const accessToken = localStorage.getItem('token')
+  const accessToken = keycloakConfig.token
 
-  // We need to check token before sending request, in this case is checking accessToken in localStorage
   if (accessToken) {
-    // if accessToken exist, add it to header (we must to send accessToken for certain request which need accessToken if we want to http endpont in server accept the request)
     config.headers.Authorization = `Bearer ${accessToken}`
+  } else {
+    delete config.headers.Authorization
   }
+
   return config
 })
 
