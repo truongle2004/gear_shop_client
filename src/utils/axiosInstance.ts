@@ -1,7 +1,7 @@
-import axios from 'axios'
 import { env } from '@/enviroment'
+import axios from 'axios'
 import { keycloakConfig } from './keycloakConfig'
-import { access } from 'fs'
+import { ToastifyError, ToastifyWarn } from './Toastify'
 
 const axiosInstance = axios.create({
   // this is core url for api (like http://localhost:8081)
@@ -45,12 +45,28 @@ axiosInstance.interceptors.response.use(
     return response.data
   },
   (error) => {
-    // TODO: handle 403 error here
-    if (error.response.status === 403) {
-      localStorage.removeItem('token')
-      // TODO: need to handle refresh access token
+    const errorResponse = error.response
+
+    if (!errorResponse) {
+      ToastifyError('Network error. Please try again later.')
+      return Promise.reject(error)
     }
-    console.log(error.response)
+
+    const { status, data } = errorResponse
+
+    if (status === 403) {
+      localStorage.removeItem('token')
+      ToastifyWarn('Session expired. Please log in again.')
+      // TODO: Handle token refresh or redirect to login
+    } else if (status === 400) {
+      ToastifyWarn(data?.message || 'Bad request. Please check your input.')
+    } else if (status === 404) {
+      ToastifyError('Requested resource not found.')
+    } else if (status >= 500) {
+      ToastifyError('Server error. Please try again later.')
+    } else {
+      ToastifyError(data?.message || 'An unexpected error occurred.')
+    }
     return Promise.reject(error)
   }
 )

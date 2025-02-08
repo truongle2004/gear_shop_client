@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom'
 import { getCategoriesAPI } from './modules/product/services'
 import router from './routes'
 import useCategoryStore from './store/categoryStore'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
   // Call api here to get slug of categories which will be used to get products
@@ -25,6 +26,7 @@ function App() {
   return (
     <>
       <RouterProvider router={router} />
+      <ToastContainer />
     </>
   )
 }

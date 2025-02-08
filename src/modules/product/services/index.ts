@@ -67,3 +67,22 @@ export const getProductDetailByIdAPI = async ({
 export const getSuggestedProductAPI = async (): Promise<string[]> => {
   return await axiosInstance.get(`${env.PRODUCT_URL}/suggestions`)
 }
+
+export const addProductToCartAPI = async ({
+  userId,
+  quantity,
+  productId
+}: {
+  userId: string
+  quantity: number
+  productId: number
+}): Promise<string> => {
+  // NOTE: null as the second argument (POST typically expects a body, but we're only sending query params)
+  return await axiosInstance.post(`${env.CART_URL}/add`, null, {
+    params: {
+      userId,
+      quantity,
+      productId
+    }
+  })
+}

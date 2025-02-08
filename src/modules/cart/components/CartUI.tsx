@@ -1,22 +1,44 @@
 import useAuthStore from '@/store/authStore'
-import { useMutation } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { getCartAPI } from '../services'
+import { getCartByUserIdAPI } from '../services'
+import { formatPriceVND } from '@/utils/formatPrice'
+import Button from 'react-bootstrap/Button'
+import { Form } from 'react-bootstrap'
 
 const CartUI = () => {
   // TODO: need to consider here
-  const [cart, setCart] = useState([])
-  const { authenticateUser } = useAuthStore()
+  const { getUserInfo, authenticateUser, userInfo } = useAuthStore()
 
-  const { mutate: fetchCartAPI } = useMutation({
-    mutationFn: getCartAPI,
-    onSuccess: (data) => console.log(data)
+  const [quantity, setQuantity] = useState(1)
+
+  const userId = userInfo.id
+
+  const { data: cartData } = useQuery({
+    queryKey: ['cart', userInfo.id],
+    queryFn: () => getCartByUserIdAPI(userId as string),
+    enabled: !!userInfo.id
   })
 
+  const handleAuth = async () => {
+    await authenticateUser()
+    if (!userInfo.id) {
+      await getUserInfo()
+    }
+  }
+
+  const handleIncrement = () => {
+    setQuantity(quantity + 1)
+  }
+
+  const handleDecrement = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1)
+    }
+  }
 
   useEffect(() => {
-    fetchCartAPI()
-    authenticateUser()
+    handleAuth()
   }, [])
 
   return (
@@ -30,6 +52,7 @@ const CartUI = () => {
                   <thead className="text-muted">
                     <tr className="small text-uppercase">
                       <th scope="col">Product</th>
+                      <th>title</th>
                       <th
                         scope="col"
                         style={{
@@ -46,20 +69,68 @@ const CartUI = () => {
                       >
                         Price
                       </th>
-                      <th
-                        scope="col"
-                        className="text-right d-none d-md-block "
-                        style={{
-                          width: '200px'
-                        }}
-                      ></th>
+                      <th className="w-5"></th>
                     </tr>
                   </thead>
-                  <tbody></tbody>
+
+                  {cartData?.cartItems.map((item) => (
+                    <tbody>
+                      <tr>
+                        <td>
+                          <figure className="itemside align-items-center">
+                            <div className="aside">
+                              <img
+                                src={item.product.images[0].src}
+                                className="img-sm"
+                                style={{
+                                  width: '90px',
+                                  height: '90px'
+                                }}
+                                alt={
+                                  item.product.images[0].alt ||
+                                  item.product.title
+                                }
+                              />
+                            </div>
+                          </figure>
+                        </td>
+                        <td
+                          style={{
+                            width: '200px'
+                          }}
+                        >
+                          {item?.product.title}
+                        </td>
+                        <td className="w-25">
+                          <td className="text-center d-flex gap-3">
+                            <Button onClick={handleIncrement}>+</Button>
+                            <p>{quantity}</p>
+                            <Button onClick={handleDecrement}>-</Button>
+                          </td>
+                        </td>
+                        <td>
+                          <div className="price-wrap">
+                            <var className="price">
+                              {formatPriceVND(item.product.price as number)}{' '}
+                              each
+                            </var>
+                          </div>
+                        </td>
+                        <td className="text-right d-none d-md-block">
+                          <button className="btn btn-light"> Remove </button>
+                        </td>
+                        <td>
+                          <Form>
+                            <Form.Check />
+                          </Form>
+                        </td>
+                      </tr>
+                    </tbody>
+                  ))}
                 </table>
               </div>
             </div>
-            {cart.length === 0 && (
+            {cartData?.cartItems.length === 0 && (
               <div className="alert alert-info text-center mt-3" role="alert">
                 Your cart is empty
               </div>
@@ -95,7 +166,9 @@ const CartUI = () => {
               <div className="card-body">
                 <dl className="dlist-align">
                   <dt>Total price:</dt>
-                  <dd className="text-right ml-3">$69.97</dd>
+                  <dd className="text-right ml-3">
+                    {formatPriceVND(cartData?.totalPrice as number)}
+                  </dd>
                 </dl>
                 <dl className="dlist-align">
                   <dt>Discount:</dt>

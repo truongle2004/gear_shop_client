@@ -1,15 +1,18 @@
-import { addProductToCartAPI } from '@/modules/cart/services'
 import useAuthStore from '@/store/authStore'
 import useCategoryStore from '@/store/categoryStore'
 import { formatPriceVND } from '@/utils/formatPrice'
 import { scrollToTop } from '@/utils/scrollToTop'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { Button } from 'react-bootstrap'
+import Button from 'react-bootstrap/Button'
 import { FaStar } from 'react-icons/fa'
 import Ratings from 'react-ratings-declarative'
 import { Link, useParams } from 'react-router-dom'
-import { getProductAPI, getProductDetailByIdAPI } from '../services'
+import {
+  addProductToCartAPI,
+  getProductAPI,
+  getProductDetailByIdAPI
+} from '../services'
 import Footer from './Footer'
 
 const iconPath =
@@ -124,7 +127,7 @@ const DetailUI = () => {
                 {detailData?.images.map((image) => (
                   <img
                     key={image.id}
-                    className="cover rounded mb-2"
+                    className={`cover rounded mb-2 ${imageIndex === image.position - 1 ? 'border border-primary' : ''}`}
                     width="40"
                     height="40"
                     onClick={() => clickImage(image.position - 1)}
