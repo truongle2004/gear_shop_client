@@ -1,26 +1,28 @@
 import { useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { RouterProvider } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
 import { getCategoriesAPI } from './modules/product/services'
 import router from './routes'
 import useCategoryStore from './store/categoryStore'
-import { ToastContainer } from 'react-toastify'
 
 function App() {
   // Call api here to get slug of categories which will be used to get products
   const { listCategory, setCategory } = useCategoryStore()
 
-  const { mutate: fetchCategoriesAPI } = useMutation({
+  const { mutateAsync: fetchCategoriesAPI } = useMutation({
     mutationFn: getCategoriesAPI,
     onSuccess: (data) => {
       setCategory(data)
     }
   })
 
+  const handleFetchCategories = async () => {
+    if (listCategory.length > 0) return
+    await fetchCategoriesAPI()
+  }
   useEffect(() => {
-    if (listCategory?.length === 0) {
-      fetchCategoriesAPI()
-    }
+    handleFetchCategories()
   }, [])
 
   return (

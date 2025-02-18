@@ -45,7 +45,7 @@ const router = createBrowserRouter([
         element: LazyLoad(CategoryComponent)
       },
       {
-        path: 'product/:slug/:id',
+        path: 'product/:slug/:productId',
         element: LazyLoad(DetailComponent)
       },
       {

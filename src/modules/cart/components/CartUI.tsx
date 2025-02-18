@@ -1,45 +1,48 @@
 import useAuthStore from '@/store/authStore'
+import { formatPriceVND } from '@/utils/formatPrice'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { getCartByUserIdAPI } from '../services'
-import { formatPriceVND } from '@/utils/formatPrice'
-import Button from 'react-bootstrap/Button'
 import { Form } from 'react-bootstrap'
+import Button from 'react-bootstrap/Button'
+import { getCartByUserIdAPI } from '../services'
 
 const CartUI = () => {
   // TODO: need to consider here
-  const { getUserInfo, authenticateUser, userInfo } = useAuthStore()
-
+  const {
+    getUserId,
+    userInfo: { id }
+  } = useAuthStore()
   const [quantity, setQuantity] = useState(1)
 
-  const userId = userInfo.id
+  // getUserId()
 
   const { data: cartData } = useQuery({
-    queryKey: ['cart', userInfo.id],
-    queryFn: () => getCartByUserIdAPI(userId as string),
-    enabled: !!userInfo.id
+    queryKey: ['cart', id],
+    queryFn: () => getCartByUserIdAPI(id as string),
+    enabled: !!id
   })
 
-  const handleAuth = async () => {
-    await authenticateUser()
-    if (!userInfo.id) {
-      await getUserInfo()
-    }
-  }
-
+  console.log(id)
   const handleIncrement = () => {
     setQuantity(quantity + 1)
   }
+
+  useEffect(() => {
+    const fetchUserInfor = async () => {
+      await getUserId()
+    }
+    try {
+      fetchUserInfor()
+    } catch (err) {
+      console.log(err)
+    }
+  }, [])
 
   const handleDecrement = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1)
     }
   }
-
-  useEffect(() => {
-    handleAuth()
-  }, [])
 
   return (
     <>
@@ -74,26 +77,23 @@ const CartUI = () => {
                   </thead>
 
                   {cartData?.cartItems.map((item) => (
-                    <tbody>
+                    <tbody key={item.id}>
                       <tr>
-                        <td>
-                          <figure className="itemside align-items-center">
-                            <div className="aside">
-                              <img
-                                src={item.product.images[0].src}
-                                className="img-sm"
-                                style={{
-                                  width: '90px',
-                                  height: '90px'
-                                }}
-                                alt={
-                                  item.product.images[0].alt ||
-                                  item.product.title
-                                }
-                              />
-                            </div>
-                          </figure>
-                        </td>
+                        <figure className="itemside align-items-center">
+                          <div className="aside">
+                            <img
+                              src={item.product.images[0].src}
+                              className="img-sm"
+                              style={{
+                                width: '90px',
+                                height: '90px'
+                              }}
+                              alt={
+                                item.product.images[0].alt || item.product.title
+                              }
+                            />
+                          </div>
+                        </figure>
                         <td
                           style={{
                             width: '200px'

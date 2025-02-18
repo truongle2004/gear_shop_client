@@ -1,3 +1,4 @@
+import ModelRequireLogin from '@/common/components/ModalRequireLogin'
 import useAuthStore from '@/store/authStore'
 import useCategoryStore from '@/store/categoryStore'
 import { formatPriceVND } from '@/utils/formatPrice'
@@ -6,7 +7,8 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import { FaStar } from 'react-icons/fa'
-import Ratings from 'react-ratings-declarative'
+// import Ratings from 'react-ratings-declarative'
+import { ToastifySuccess } from '@/utils/Toastify'
 import { Link, useParams } from 'react-router-dom'
 import {
   addProductToCartAPI,
@@ -15,26 +17,23 @@ import {
 } from '../services'
 import Footer from './Footer'
 
-const iconPath =
-  'M18.571 7.221c0 0.201-0.145 0.391-0.29 0.536l-4.051 3.951 0.96 5.58c0.011 0.078 0.011 0.145 0.011 0.223 0 0.29-0.134 0.558-0.458 0.558-0.156 0-0.313-0.056-0.446-0.134l-5.011-2.634-5.011 2.634c-0.145 0.078-0.29 0.134-0.446 0.134-0.324 0-0.469-0.268-0.469-0.558 0-0.078 0.011-0.145 0.022-0.223l0.96-5.58-4.063-3.951c-0.134-0.145-0.279-0.335-0.279-0.536 0-0.335 0.346-0.469 0.625-0.513l5.603-0.815 2.511-5.078c0.1-0.212 0.29-0.458 0.547-0.458s0.446 0.246 0.547 0.458l2.511 5.078 5.603 0.815c0.268 0.045 0.625 0.179 0.625 0.513z'
-
 const DEFAULT_PAGE_NO = 1
 const DEFAULT_PAGE_SIZE = 20
 
 // TODO: add reviews
 const DetailUI = () => {
-  const { id } = useParams()
+  const { productId } = useParams()
   const [imageIndex, setImageIndex] = useState(0)
   const { listCategory } = useCategoryStore()
   const [quantity, setQuantity] = useState(1)
-  const { authenticateUser, userInfo, getUserInfo } = useAuthStore()
+  const { getUserId } = useAuthStore()
 
   // call api get detail product by id
   const { data: detailData } = useQuery({
-    queryKey: ['detail', id],
-    queryFn: () => getProductDetailByIdAPI({ id: Number(id) }),
+    queryKey: ['detail', productId],
+    queryFn: () => getProductDetailByIdAPI({ id: Number(productId) }),
     // this query will only run when id is not null
-    enabled: !!id
+    enabled: !!productId
   })
 
   // after call product detail success, get more recommend product by category slug
@@ -61,29 +60,35 @@ const DetailUI = () => {
     enabled: !!productCategorySlug
   })
 
-  const mutation = useMutation({
+  const { mutateAsync: addProductToCartMutation } = useMutation({
     mutationFn: addProductToCartAPI,
     onSuccess: (data) => {
-      console.log(data)
+      ToastifySuccess(data.message)
     }
   })
 
-  const handleAddToCartButton = async (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleClickAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
+    handleAddToCart()
+  }
 
-    if (!userInfo.id) {
-      await authenticateUser()
-      getUserInfo()
-      return
+  const handleAddToCart = async () => {
+    try {
+      const userId = await getUserId()
+
+      if (userId == null) {
+      }
+
+      if (userId) {
+        await addProductToCartMutation({
+          productId: Number(productId),
+          quantity,
+          userId: userId as string
+        })
+      }
+    } catch (err) {
+      console.log('err', err)
     }
-
-    mutation.mutate({
-      productId: Number(id),
-      quantity,
-      userId: userInfo.id
-    })
   }
 
   const reduceQuantity = () => {
@@ -98,7 +103,7 @@ const DetailUI = () => {
   useEffect(() => {
     // each time refresh page, scroll to top
     scrollToTop()
-  }, [id])
+  }, [productId])
 
   const clickImage = (index: number) => {
     setImageIndex(index)
@@ -107,6 +112,7 @@ const DetailUI = () => {
   // TODO: need to handle display when there is no description
   return (
     <>
+      <ModelRequireLogin />
       <div
         className="container mt-5 py-4 px-xl-5"
         style={{
@@ -166,8 +172,9 @@ const DetailUI = () => {
               <div className="row g-3 mb-4">
                 <div className="col">
                   <button
+                    type="button"
                     className="btn btn-outline-dark py-2 w-100"
-                    onClick={handleAddToCartButton}
+                    onClick={handleClickAddToCart}
                   >
                     Add to cart
                   </button>
@@ -213,7 +220,7 @@ const DetailUI = () => {
 
                 <dt className="col-sm-4">Rating</dt>
                 <dd className="col-sm-8 mb-3">
-                  <Ratings
+                  {/* <Ratings
                     rating={4.5}
                     widgetRatedColors="rgb(253, 204, 13)"
                     widgetSpacings="2px"
@@ -229,7 +236,7 @@ const DetailUI = () => {
                         />
                       )
                     })}
-                  </Ratings>
+                  </Ratings> */}
                 </dd>
               </dl>
             </div>

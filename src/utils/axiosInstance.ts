@@ -18,7 +18,7 @@ const axiosInstance = axios.create({
 // store all public url
 const publicUrl = [env.PRODUCT_URL]
 
-axiosInstance.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use(async (config) => {
   // this condition make sure we don't add token to public url
   // prevent error from calling api
   if (publicUrl.some((item) => config.url?.includes(item))) {
@@ -33,9 +33,12 @@ axiosInstance.interceptors.request.use((config) => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`
   } else {
-    delete config.headers.Authorization
-  }
+    await keycloakConfig.updateToken(30).catch(() => {
+      keycloakConfig.login()
+    })
 
+    config.headers.Authorization = `Bearer ${keycloakConfig.token}`
+  }
   return config
 })
 

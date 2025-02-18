@@ -1,5 +1,5 @@
 import { useQueries, useQuery } from '@tanstack/react-query'
-import { FC, useState } from 'react'
+import { FC } from 'react'
 import { Container } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import image1 from '../../../../public/layout_web__1015x325.webp'
@@ -79,9 +79,11 @@ const HomeUI: FC = () => {
             <img src={image1} alt="img1" />
             <img src={image2} alt="img2" />
           </div>
-          {successfulProducts.map((data) => {
-            return renderSection(data.content[0].category, data)
-          })}
+          {successfulProducts.map((data) => (
+            <div key={data.content[0].category}>
+              {renderSection(data.content[0].category, data)}
+            </div>
+          ))}
         </Container>
       )}
 
