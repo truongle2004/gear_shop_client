@@ -1,6 +1,4 @@
-import type { FC } from 'react'
-
-const Footer: FC = () => {
+const Footer = () => {
   return (
     <footer className="text-center text-lg-start bg-light text-muted">
       <section className="">

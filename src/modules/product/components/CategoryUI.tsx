@@ -4,10 +4,10 @@ import { Container, Pagination } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
 import { ProductData } from '../models'
 import { getProductAPI } from '../services'
-import useCategoryStore from '../store/categoryStore'
 import CustomCard from './CustomCard'
 import ScrollToTopOnMount from './ScrollToTopOnMount'
 import Footer from './Footer'
+import useCategoryStore from '@/store/categoryStore'
 
 const DEFAUL_PAGE_NO = 1
 const DEFAUL_PAGE_SIZE = 50

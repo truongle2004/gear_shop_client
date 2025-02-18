@@ -1,4 +1,3 @@
-import ModelRequireLogin from '@/common/components/ModalRequireLogin'
 import useAuthStore from '@/store/authStore'
 import useCategoryStore from '@/store/categoryStore'
 import { formatPriceVND } from '@/utils/formatPrice'
@@ -15,7 +14,6 @@ import {
   getProductAPI,
   getProductDetailByIdAPI
 } from '../services'
-import Footer from './Footer'
 
 const DEFAULT_PAGE_NO = 1
 const DEFAULT_PAGE_SIZE = 20
@@ -26,7 +24,10 @@ const DetailUI = () => {
   const [imageIndex, setImageIndex] = useState(0)
   const { listCategory } = useCategoryStore()
   const [quantity, setQuantity] = useState(1)
-  const { getUserId } = useAuthStore()
+  const {
+    getUserId,
+    userInfo: { id }
+  } = useAuthStore()
 
   // call api get detail product by id
   const { data: detailData } = useQuery({
@@ -74,17 +75,15 @@ const DetailUI = () => {
 
   const handleAddToCart = async () => {
     try {
-      const userId = await getUserId()
-
-      if (userId == null) {
-      }
-
-      if (userId) {
+      if (id) {
         await addProductToCartMutation({
           productId: Number(productId),
           quantity,
-          userId: userId as string
+          userId: id as string
         })
+      } else {
+        // handle user id is null
+        await getUserId()
       }
     } catch (err) {
       console.log('err', err)
@@ -112,7 +111,7 @@ const DetailUI = () => {
   // TODO: need to handle display when there is no description
   return (
     <>
-      <ModelRequireLogin />
+      {/* <ModelRequireLogin /> */}
       <div
         className="container mt-5 py-4 px-xl-5"
         style={{
@@ -345,7 +344,7 @@ const DetailUI = () => {
           </div>
         </section>
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </>
   )
 }
